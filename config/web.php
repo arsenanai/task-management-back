@@ -12,9 +12,21 @@ $config = [
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
+        'response' => [
+            'class' => 'yii\web\Response',
+            'on beforeSend' => function ($event) {
+                $response = $event->sender;
+                if ($response->format === 'json' && $response->data !== null) {
+                    $response->data = (new \app\components\ApiResponseFormatter())->format($response);
+                }
+            },
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-            'cookieValidationKey' => 'gao7b_JF0jxVShnLwZ8eOzeQ021MXLST',
+            'cookieValidationKey' => 'cookie_secret_not_really_used_in_this_api_project',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser'
+            ]
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -42,14 +54,15 @@ $config = [
             ],
         ],
         'db' => $db,
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                ['class' => 'yii\rest\UrlRule', 'controller' => ['task','tag','auth'], 'pluralize' => true],
+                'PATCH tasks/<id:\d+>/toggle-status' => 'task/toggle-status',
+                'PATCH tasks/<id:\d+>/restore' => 'task/restore',
             ],
         ],
-        */
     ],
     'params' => $params,
 ];

@@ -1,0 +1,133 @@
+Advanced CRUD Assignment (Backend-Focused, Lead Developer Level)
+Objective
+Build a robust, production-ready RESTful API-based task management system using Yii2
+(Basic or Advanced Template). The assignment should demonstrate expertise in:
+- Backend architecture and modular design
+- Complex data modeling and relationships
+- Validation, filtering, and querying
+- API design and best practices
+- Security, logging, and performance optimization
+- Test-driven development
+- Optional frontend integration t- demonstrate API consumption
+Backend Functional Requirements
+Task Model
+Each Task must include:
+- id (auto-increment, primary key)
+- title (string, required, min 5 characters)
+- description (text, optional)
+- status (enum: pending, in_progress, completed) – default: pending
+- priority (enum: low, medium, high) – default: medium
+- due_date (date, optional)
+- assigned_to (foreign key: user.id, optional)
+- tags (many-to-many relationship with Tag model)
+- created_at, updated_at (timestamps, auto-managed)
+- deleted_at (timestamp for soft deletes)
+- version (integer, for optimistic locking)
+- metadata (JSON, optional for extra task properties)
+Tag Model (Advanced Feature)
+- id (primary key)
+- name (string, required, unique)
+- color (string, optional for UI)
+- Relation: Many-to-many with tasks (task_tag pivot table)
+User Model (Optional for Assigned Tasks)
+- id, name, email, role
+- Required if tasks can be assigned
+Required API Endpoints
+Task Endpoints
+- GET /tasks – list all tasks
+Supports:
+- Filtering by status, priority, assigned_to, due_date_range, tags, keyword in
+title/description
+- Pagination (limit, offset or page-based)
+- Sorting (created_at, due_date, priority, title)
+- Full-text search (title + description)
+- GET /tasks/{id} – get task by ID, including tags and assigned user
+- POST /tasks – create a new task, supports assigning tags and user
+- PUT /tasks/{id} – update a task (use optimistic locking with version)
+- PATCH /tasks/{id}/toggle-status – cycle status: pending → in_progress → completed →
+pending
+- DELETE /tasks/{id} – soft delete task
+- PATCH /tasks/{id}/restore – restore soft-deleted task
+Tag Endpoints
+- GET /tags – list all tags
+- POST /tags – create tag
+- PUT /tags/{id} – update tag
+- DELETE /tags/{id} – delete tag
+Advanced Backend Features
+1. Validation & Business Rules
+- Use Yii2 model rules + custom validators
+- Validate due_date not in the past (if status is pending/in_progress)
+- Ensure assigned user exists
+2. Soft Deletes
+- Override default query t- exclude soft-deleted records
+- Restore tasks via a dedicated endpoint
+3. Audit Logs
+- Record create/update/delete operations in task_log table
+- Include user_id, changes, timestamp, operation_type
+4. Authentication & Authorization
+- Token-based authentication (JWT preferred, token-based acceptable)
+- Role-based authorization (e.g., admin can manage all tasks, users can only
+manage their tasks)
+5. Optimistic Locking
+- Use version field t- prevent race conditions on updates
+6. Advanced Filtering & Sorting
+- Allow multiple filters in one request (e.g.,
+status=completed&priority=high&tags=1,3)
+- Use ActiveDataProvider for performance
+7. Pagination
+- Support both offset-based and cursor-based pagination
+8. Performance Considerations
+- Eager load relations (tags, assigned_user) t- prevent N+1 queries
+- Index database fields used in filtering/sorting (status, priority, due_date)
+9. Testing
+- PHPUnit test coverage for TaskController + Task model + custom behaviors
+- Include tests for filtering, soft delete, restore, and optimistic locking
+Minimal Frontend (Optional)
+- Single-page HTML interface (Bootstrap + JS/Axios)
+- Demonstrate:
+- Listing tasks with filters
+- Create/update/delete tasks
+- Toggle status
+- Filter by tag or assigned user
+- Restore soft-deleted tasks
+Technology Guidelines
+- Yii2 (Basic or Advanced Template)
+- Migrations (yii migrate) for all tables
+- Gii for optional scaffolding
+- ActiveDataProvider for filtering/pagination
+- PSR-12 coding standard
+- Modular folder structure
+Submission Instructions
+- Submit as GitHub repository (preferred) or zipped folder
+- Include README.md with:
+- Project setup instructions
+- DB config and migrations
+- API endpoint list and examples
+- Test instructions
+- Frontend usage instructions
+- Optional: Postman collection or curl examples
+====================================================
+
+## Project Specification Notes
+
+Based on the initial project description and subsequent clarifications, the following decisions have been made for the implementation:
+
+### 1. Authentication & Authorization
+
+*   **Authentication:** A mandatory JSON Web Token (JWT) based authentication system will be implemented. All protected endpoints will require a valid JWT.
+*   **Authorization (RBAC):** Two primary roles will be used:
+    *   `admin`: Can perform any action on any resource (tasks, tags, users).
+    *   `user`: Can only create tasks and manage (view, update, delete) tasks assigned to them.
+
+### 2. Data Model & Business Logic
+
+*   **Enums (`status`, `priority`):** These fields will be stored as `SMALLINT` in the database for performance and storage efficiency. The `Task` model will contain constants to map these integer values to human-readable strings (e.g., `const STATUS_PENDING = 1;`).
+*   **Completed Tasks:** Once a task's status is set to `completed`, it becomes immutable. Any attempts to update a completed task will be rejected with a validation error.
+*   **Metadata:** The `metadata` JSON field will be treated as a flexible, schema-less key-value store.
+
+### 3. API Functionality
+
+*   **Tag Filtering:** When filtering tasks by multiple tags (e.g., `GET /tasks?tags=1,3`), the API will use **AND** logic. It will only return tasks that are associated with *all* of the specified tags.
+*   **Toggle Status Endpoint:** The `PATCH /tasks/{id}/toggle-status` endpoint will not operate on soft-deleted tasks. If a request is made to toggle the status of a soft-deleted task, the API will return a `404 Not Found` error.
+USE TDD APPROARCH WHEN WRITING A CODE
+====================================================

@@ -13,18 +13,18 @@ class m251015_090429_create_task_table extends Migration
     public function safeUp()
     {
         $this->createTable('{{%task}}', [
-            'id' => $this->primaryKey(),
-            'title' => $this->string(255)->notNull(),
+            'id'          => $this->primaryKey(),
+            'title'       => $this->string(255)->notNull(),
             'description' => $this->text(),
-            'status' => "ENUM('pending','in_progress','completed') NOT NULL DEFAULT 'pending'",
-            'priority' => "ENUM('low','medium','high') NOT NULL DEFAULT 'medium'",
-            'due_date' => $this->date(),
+            'status'      => $this->smallInteger()->notNull()->defaultValue(1), // 1: pending, 2: in_progress, 3: completed
+            'priority'    => $this->smallInteger()->notNull()->defaultValue(2), // 1: low, 2: medium, 3: high
+            'due_date'    => $this->date(),
             'assigned_to' => $this->integer()->null(),
-            'metadata' => $this->json(),
-            'created_at' => $this->integer()->notNull(),
-            'updated_at' => $this->integer()->notNull(),
-            'deleted_at' => $this->integer()->null(),
-            'version' => $this->integer()->notNull()->defaultValue(0),
+            'metadata'    => $this->json(),
+            'created_at'  => $this->integer()->notNull(),
+            'updated_at'  => $this->integer()->notNull(),
+            'deleted_at'  => $this->integer()->null(),
+            'version'     => $this->integer()->notNull()->defaultValue(0),
         ]);
 
         $this->addForeignKey('fk_task_user', '{{%task}}', 'assigned_to', '{{%user}}', 'id', 'SET NULL', 'CASCADE');

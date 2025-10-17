@@ -13,11 +13,11 @@ class m251015_090709_create_task_log_table extends Migration
     public function safeUp()
     {
         $this->createTable('{{%task_log}}', [
-            'id' => $this->primaryKey(),
-            'task_id' => $this->integer()->notNull(),
-            'user_id' => $this->integer(),
-            'operation' => $this->string(32)->notNull(),
-            'changes' => $this->json()->notNull(),
+            'id'         => $this->primaryKey(),
+            'task_id'    => $this->integer()->notNull(),
+            'user_id'    => $this->integer(),
+            'operation'  => $this->string(32)->notNull(),
+            'changes'    => $this->json()->notNull(),
             'created_at' => $this->integer()->notNull(),
         ]);
         $this->addForeignKey('fk_tasklog_task', '{{%task_log}}', 'task_id', '{{%task}}', 'id', 'CASCADE', 'CASCADE');

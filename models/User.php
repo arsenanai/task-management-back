@@ -24,17 +24,14 @@ use yii\behaviors\TimestampBehavior;
  */
 class User extends ActiveRecord implements IdentityInterface
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
-
     // Enum values for role
-    const ROLE_ADMIN = 'admin';
-    const ROLE_USER = 'user';
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_USER = 'user';
 
-    public static function tableName() { return 'user'; }
+    public static function tableName()
+    {
+        return 'user';
+    }
 
     // Validation rules
     public function rules()
@@ -52,25 +49,49 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
-    // Finders
-    public static function findIdentity($id){ return static::findOne($id); }
-
-    // token handling delegated to JwtHttpBearerAuth
-    public static function findIdentityByAccessToken($token, $type = null){ return null; }
-
-    public static function findByUsername($username)
+    // Attribute labels
+    public function attributeLabels()
     {
-        $username = trim($username);
-        if (empty($username)) {
-            return null;
-        }
-        return static::findOne('username', $username);
+        return [
+            'id' => 'ID',
+            'name' => 'Name',
+            'email' => 'Email',
+            'password_hash' => 'Password Hash',
+            'role' => 'Role',
+            'auth_key' => 'Auth Key',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
+        ];
+    }
+
+    // Finders
+    public static function findIdentity($id)
+    {
+        return static::findOne($id);
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        // $token is the decoded JWT payload (stdClass object)
+        // Find user by the 'uid' claim
+        return static::findOne(['id' => $token->uid]);
+    }
+
+    public static function findByEmail($email)
+    {
+        return static::findOne(['email' => $email]);
     }
 
     // Getters
-    public function getId() { return $this->id; }
+    public function getId()
+    {
+        return $this->getPrimaryKey();
+    }
 
-    public function getAuthKey() { return $this->authKey; }
+    public function getAuthKey()
+    {
+        return $this->auth_key;
+    }
 
     public function getTaskLogs()
     {
@@ -83,14 +104,26 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     // Validators
-    public function validateAuthKey($authKey) { return $this->authKey === $authKey; }
+    public function validateAuthKey($authKey)
+    {
+        return $this->getAuthKey() === $authKey;
+    }
 
-    public function validatePassword($password) { return $this->password === $password; }
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
 
     // Setters
-    public function setRoleToAdmin() { $this->role = self::ROLE_ADMIN; }
+    public function setRoleToAdmin()
+    {
+        $this->role = self::ROLE_ADMIN;
+    }
 
-    public function setRoleToUser() { $this->role = self::ROLE_USER; }
+    public function setRoleToUser()
+    {
+        $this->role = self::ROLE_USER;
+    }
 
     // Helpers
     public static function optsRole()
@@ -116,5 +149,17 @@ class User extends ActiveRecord implements IdentityInterface
         return $this->role === self::ROLE_USER;
     }
 
-    public function behaviors() { return [TimestampBehavior::class]; }
+    public function behaviors()
+    {
+        return [TimestampBehavior::class];
+    }
+
+    public function beforeSave($insert)
+    {
+        if ($insert && empty($this->auth_key)) {
+            $this->auth_key = Yii::$app->security->generateRandomString();
+        }
+
+        return parent::beforeSave($insert);
+    }
 }

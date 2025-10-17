@@ -14,7 +14,7 @@ class m251015_090613_create_task_tag_table extends Migration
     {
         $this->createTable('{{%task_tag}}', [
             'task_id' => $this->integer()->notNull(),
-            'tag_id' => $this->integer()->notNull(),
+            'tag_id'  => $this->integer()->notNull(),
         ]);
 
         $this->addPrimaryKey('pk_task_tag', '{{%task_tag}}', ['task_id', 'tag_id']);

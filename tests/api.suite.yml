@@ -1,0 +1,11 @@
+actor: ApiTester
+modules:
+  enabled:
+    - REST:
+        url: /
+        part: Json
+        depends: Yii2
+    - Asserts
+    - Yii2:
+        part: [orm, fixtures]
+        cleanup: true

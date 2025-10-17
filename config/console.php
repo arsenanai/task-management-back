@@ -2,11 +2,6 @@
 
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
-$test_db = require __DIR__ . '/test_db.php';
-
-/**
- * Application configuration shared by all test types
- */
 
 $config = [
     'id' => 'basic-console',
@@ -31,7 +26,6 @@ $config = [
             ],
         ],
         'db' => $db,
-        'db_test' => $test_db,
     ],
     'params' => $params,
     /*
