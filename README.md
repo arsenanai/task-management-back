@@ -96,11 +96,11 @@ The API will be available at `http://localhost:8080`.
 6\. API Testing with Postman
 ----------------------------
 
-A Postman collection is included in the root of the project (`Task-Management-API.postman_collection.json`) to make manual API testing easier.
+A Postman collection is included in the root of the project (`Yii2 Task Management API.postman_collection.json`) to make manual API testing easier.
 
 ### 1\. Import the Collection
 
-Import the `Task-Management-API.postman_collection.json` file into your Postman client. The collection is pre-configured with all the necessary API endpoints.
+Import the `Yii2 Task Management API.postman_collection.json` file into your Postman client. The collection is pre-configured with all the necessary API endpoints.
 
 ### 2\. Default Users
 

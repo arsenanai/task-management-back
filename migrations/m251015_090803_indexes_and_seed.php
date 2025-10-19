@@ -4,6 +4,7 @@ use yii\db\Migration;
 use app\models\User;
 use app\models\Tag;
 use app\models\Task;
+use Faker\Factory;
 
 class m251015_090803_indexes_and_seed extends Migration
 {
@@ -51,65 +52,35 @@ class m251015_090803_indexes_and_seed extends Migration
         $tagIds = Tag::find()->select('id')->column();
 
         // Seed diverse tasks
-        $tasks = [
-            [
-                'title' => 'Implement user authentication API',
-                'description' => 'Develop the backend endpoints for user login and registration.',
-                'status' => Task::STATUS_COMPLETED,
-                'priority' => Task::PRIORITY_HIGH,
-                'assigned_to' => $adminUser->id,
-                'due_date' => date('Y-m-d', strtotime('-5 days')),
-                'tags' => [$tagIds[0], $tagIds[4]] // Backend, Urgent
-            ],
-            [
-                'title' => 'Design the new dashboard UI',
-                'description' => 'Create mockups and wireframes for the new frontend dashboard.',
-                'status' => Task::STATUS_IN_PROGRESS,
-                'priority' => Task::PRIORITY_MEDIUM,
-                'assigned_to' => $regularUser->id,
-                'due_date' => date('Y-m-d', strtotime('+10 days')),
-                'tags' => [$tagIds[1]] // Frontend
-            ],
-            [
-                'title' => 'Fix database connection timeout issue',
-                'description' => 'The database connection occasionally times out under heavy load.',
-                'status' => Task::STATUS_PENDING,
-                'priority' => Task::PRIORITY_HIGH,
-                'assigned_to' => $adminUser->id,
-                'due_date' => date('Y-m-d', strtotime('+2 days')),
-                'tags' => [$tagIds[2], $tagIds[5]] // Bug, Database
-            ],
-            [
-                'title' => 'Add export-to-CSV feature',
-                'description' => 'Users want to be able to export their task list as a CSV file.',
-                'status' => Task::STATUS_PENDING,
-                'priority' => Task::PRIORITY_LOW,
-                'assigned_to' => null, // Unassigned
-                'due_date' => date('Y-m-d', strtotime('+30 days')),
-                'tags' => [$tagIds[3]] // Feature Request
-            ],
-            [
-                'title' => 'Refactor the API response formatter',
-                'description' => 'Improve the structure of all API responses for consistency.',
-                'status' => Task::STATUS_IN_PROGRESS,
-                'priority' => Task::PRIORITY_MEDIUM,
-                'assigned_to' => $adminUser->id,
-                'due_date' => date('Y-m-d', strtotime('+7 days')),
-                'tags' => [$tagIds[0]] // Backend
-            ],
-        ];
+        $faker = Factory::create();
+        $userIds = [$adminUser->id, $regularUser->id, null];
+        $statuses = [Task::STATUS_PENDING, Task::STATUS_IN_PROGRESS, Task::STATUS_COMPLETED];
+        $priorities = [Task::PRIORITY_LOW, Task::PRIORITY_MEDIUM, Task::PRIORITY_HIGH];
 
-        foreach ($tasks as $taskData) {
+        for ($i = 0; $i < 120; $i++) {
             $task = new Task();
-            $task->title = $taskData['title'];
-            $task->description = $taskData['description'];
-            $task->status = $taskData['status'];
-            $task->priority = $taskData['priority'];
-            $task->assigned_to = $taskData['assigned_to'];
-            $task->due_date = $taskData['due_date'];
+            $task->title = $faker->sentence(6);
+            $task->description = $faker->paragraph(3);
+            $task->status = $statuses[array_rand($statuses)];
+            $task->priority = $priorities[array_rand($priorities)];
+            $task->assigned_to = $userIds[array_rand($userIds)];
+            $task->due_date = $faker->dateTimeBetween('-30 days', '+60 days')->format('Y-m-d');
             $task->save(false);
+
             // Link tags
-            $task->linkTags($taskData['tags']);
+            $numTags = rand(0, 3);
+            if ($numTags > 0) {
+                $randomTagIds = [];
+                $randKeys = array_rand($tagIds, $numTags);
+                if (is_array($randKeys)) {
+                    foreach ($randKeys as $key) {
+                        $randomTagIds[] = $tagIds[$key];
+                    }
+                } else {
+                    $randomTagIds[] = $tagIds[$randKeys];
+                }
+                $task->linkTags($randomTagIds);
+            }
         }
     }
 

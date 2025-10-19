@@ -139,6 +139,34 @@
 					"response": []
 				},
 				{
+					"name": "List Tasks (Page 2)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/tasks?per-page=5&page=2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"tasks"
+							],
+							"query": [
+								{
+									"key": "per-page",
+									"value": "5"
+								},
+								{
+									"key": "page",
+									"value": "2"
+								}
+							]
+						},
+						"description": "Retrieves the second page of the task list to test pagination."
+					},
+					"response": []
+				},
+				{
 					"name": "Filter by Status and Priority",
 					"request": {
 						"method": "GET",
